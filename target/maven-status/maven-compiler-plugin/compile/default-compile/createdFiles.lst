@@ -1,0 +1,17 @@
+pe/edu/vallegrande/ms_water_quality/infrastructure/client/dto/ExternalOrganizationDTO.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/enriched/TestingPointEnrichedResponse.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/client/dto/ExternalStreet.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/config/WebClientConfig.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/client/dto/UserApiResponse.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/enriched/QualityTestEnrichedResponse$QualityTestEnrichedResponseBuilder.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/enriched/QualityTestEnrichedResponse.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/config/JwtConfig.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/client/dto/ExternalZone.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/enriched/TestingPointEnrichedResponse$TestingPointEnrichedResponseBuilder.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/enriched/DailyRecordEnrichedResponse$DailyRecordEnrichedResponseBuilder.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/client/dto/ExternalUser.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/service/ExternalServiceClient.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/client/dto/ExternalOrganization.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/enriched/DailyRecordEnrichedResponse.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/rest/admin/AdminRest.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/client/dto/ExternalUserDTO.class

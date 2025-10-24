@@ -10,6 +10,9 @@ import pe.edu.vallegrande.ms_water_quality.infrastructure.client.dto.UserApiResp
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.ResponseDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
+
+import java.time.Duration;
 
 @Service
 public class ExternalServiceClient {
@@ -26,45 +29,43 @@ public class ExternalServiceClient {
 
     public Flux<ExternalUser> getAdminsByOrganization(String organizationId) {
         return userWebClient.get()
-                .uri("/internal/organizations/" + organizationId + "/admins")
+                .uri("/internal/organizations/{organizationId}/admins", organizationId)
                 .retrieve()
                 .bodyToMono(UserApiResponse.class)
-                .flatMapMany(response -> Flux.fromIterable(response.getData()))
-                .onErrorResume(e -> {
-                    System.err.println("Error fetching admins for organization " + organizationId + ": " + e.getMessage());
-                    return Flux.empty();
-                });
+                .flatMapMany(response -> {
+                    if (response == null || response.getData() == null) return Flux.empty();
+                    return Flux.fromIterable(response.getData());
+                })
+                .retryWhen(Retry.backoff(2, Duration.ofMillis(300)))
+                .onErrorResume(WebClientResponseException.class, e -> Flux.empty())
+                .onErrorResume(e -> Flux.empty());
     }
 
     public Mono<ExternalUser> getUserById(String userId) {
         return userWebClient.get()
-                .uri("/api/users/" + userId)
+                .uri("/api/users/{userId}", userId)
                 .retrieve()
                 .bodyToMono(ResponseDto.class)
-                .map(response -> (ExternalUser) response.getData())
-                .onErrorResume(e -> {
-                    System.err.println("Error fetching user " + userId + ": " + e.getMessage());
+                .flatMap(response -> {
+                    if (response == null || response.getData() == null) return Mono.empty();
+                    Object data = response.getData();
+                    if (data instanceof ExternalUser user) return Mono.just(user);
                     return Mono.empty();
-                });
+                })
+                .retryWhen(Retry.backoff(2, Duration.ofMillis(300)))
+                .onErrorResume(WebClientResponseException.class, e -> Mono.empty())
+                .onErrorResume(e -> Mono.empty());
     }
 
     public Mono<ExternalOrganization> getOrganizationById(String organizationId) {
-        // Instead of calling the organization service directly, we'll get organization data through users
-        // First, get admins for the organization
         return getAdminsByOrganization(organizationId)
-                .next() // Get the first admin user
+                .next()
                 .flatMap(adminUser -> {
-                    if (adminUser != null && adminUser.getOrganization() != null) {
-                        System.out.println("Successfully fetched organization from user: " + adminUser.getOrganization().getOrganizationName());
-                        return Mono.just(adminUser.getOrganization());
-                    } else {
-                        System.out.println("No organization data found in user for organization ID: " + organizationId);
-                        return Mono.empty();
-                    }
+                    if (adminUser == null || adminUser.getOrganization() == null) return Mono.empty();
+                    return Mono.just(adminUser.getOrganization());
                 })
-                .onErrorResume(e -> {
-                    System.err.println("Error fetching organization through users for organization " + organizationId + ": " + e.getMessage());
-                    return Mono.empty();
-                });
+                .retryWhen(Retry.backoff(2, Duration.ofMillis(300)))
+                .onErrorResume(WebClientResponseException.class, e -> Mono.empty())
+                .onErrorResume(e -> Mono.empty());
     }
 }
